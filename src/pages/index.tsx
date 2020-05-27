@@ -137,10 +137,10 @@ export const getServerSideProps: GetServerSideProps = async (
 
     // const result = await axios.get(url);
 
-    // if (!Object.keys(query).length || !result.data.result) {
-    //   response.writeHead(302, { Location: "/error" });
-    //   response.end();
-    // }
+    if (!Object.keys(query).length) {
+      response.writeHead(302, { Location: "/error" });
+      response.end();
+    }
 
     return {
       props: { query },
