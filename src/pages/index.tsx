@@ -17,8 +17,6 @@ const Home: NextPage<Props> = ({ query, errors }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  console.log(errors);
-
   const inValidPassword =
     /[^\x01-\x7E]/g.test(password) ||
     password?.length < 6 ||
@@ -43,9 +41,6 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             <label className={styles.label} htmlFor="email">
               メールアドレス
             </label>
-            {email && !EmailValidator.validate(email) && (
-              <div className={styles.warningText}>※入力が正しくありません</div>
-            )}
           </div>
           <input
             className={styles.textFieldInput}
@@ -53,6 +48,9 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             placeholder="メールアドレスを入力"
             onChange={onChangeEmail}
           />
+          {email && !EmailValidator.validate(email) && (
+            <div className={styles.warningText}>※入力が正しくありません</div>
+          )}
         </div>
 
         <div className={styles.inputContainer}>
@@ -60,11 +58,6 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             <label className={styles.label} htmlFor="password">
               パスワード
             </label>
-            {password && inValidPassword && (
-              <div className={styles.warningText}>
-                ※半角6文字以上で入力してください
-              </div>
-            )}
           </div>
 
           <input
@@ -73,6 +66,11 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             placeholder="6桁以上のパスワードを入力"
             onChange={onChangePassword}
           />
+          {password && inValidPassword && (
+            <div className={styles.warningText}>
+              ※半角6文字以上で入力してください
+            </div>
+          )}
         </div>
 
         <div className={styles.startButtonContainer}>
@@ -165,7 +163,7 @@ const styles = {
   label: "font-bold text-lg block mb-2 mr-4",
   inputContainer: "py-6",
   textFieldInput:
-    "bg-white w-full block focus:outline-none focus:shadow-outline leading-normal appearance-none border border-gray-300 rounded-lg py-2 px-4",
+    "bg-white w-full block focus:outline-none focus:shadow-outline leading-normal appearance-none border border-gray-300 rounded-lg py-2 mb-2 px-4",
   startButtonContainer: "mt-10 m-auto",
   startButtonImage: "sm: w-84 md:w-96",
   policyContainer: "flex flex-col flex-no-wrap items-center mt-6",
