@@ -17,6 +17,7 @@ const Home: NextPage<Props> = ({ query, errors }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const inValidEmail = !EmailValidator.validate(email);
   const inValidPassword =
     /[^\x01-\x7E]/g.test(password) ||
     password?.length < 6 ||
@@ -28,6 +29,11 @@ const Home: NextPage<Props> = ({ query, errors }) => {
 
   const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+
+  const onClickStartButton = () => {
+    alert("hey");
+    return;
   };
 
   return (
@@ -48,9 +54,13 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             placeholder="メールアドレスを入力"
             onChange={onChangeEmail}
           />
-          {email && !EmailValidator.validate(email) && (
-            <div className={styles.warningText}>※入力が正しくありません</div>
-          )}
+          <div
+            className={
+              email && inValidEmail ? styles.warningText : styles.blankText
+            }
+          >
+            ※入力が正しくありません
+          </div>
         </div>
 
         <div className={styles.inputContainer}>
@@ -66,17 +76,28 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             placeholder="6桁以上のパスワードを入力"
             onChange={onChangePassword}
           />
-          {password && inValidPassword && (
-            <div className={styles.warningText}>
-              ※半角6文字以上で入力してください
-            </div>
-          )}
+          <div
+            className={
+              password && inValidPassword
+                ? styles.warningText
+                : styles.blankText
+            }
+          >
+            ※半角6文字以上で入力してください
+          </div>
         </div>
 
         <div className={styles.startButtonContainer}>
-          <button>
+          <button
+            onClick={onClickStartButton}
+            disabled={inValidEmail || inValidPassword}
+          >
             <img
-              className={styles.startButtonImage}
+              className={
+                inValidEmail || inValidPassword
+                  ? styles.disabledStartButtonImage
+                  : styles.startButtonImage
+              }
               src="/images/bt-start.png"
               alt="start-button"
             />
@@ -161,14 +182,16 @@ const styles = {
   flexRowContainer: "flex flex-row",
   homeImage: "mb-5 m-auto max-w-screen-sm ",
   label: "font-bold text-lg block mb-2 mr-4",
-  inputContainer: "py-6",
+  inputContainer: "py-3",
   textFieldInput:
     "bg-white w-full block focus:outline-none focus:shadow-outline leading-normal appearance-none border border-gray-300 rounded-lg py-2 mb-2 px-4",
-  startButtonContainer: "mt-10 m-auto",
+  startButtonContainer: "mt-4 m-auto",
   startButtonImage: "sm: w-84 md:w-96",
+  disabledStartButtonImage: "opacity-25 sm: w-84 md:w-96",
   policyContainer: "flex flex-col flex-no-wrap items-center mt-6",
   contactContainer: "flex flex-col items-center mt-10 mb-10",
   warningText: "text-red-500",
+  blankText: "text-transparent",
   linkText: "text-teal-500 ",
   smallText: "text-sm",
 };
