@@ -1,5 +1,7 @@
-export const days = Array.from({ length: 31 }, (_, i) => i + 1);
+import * as EmailValidator from "email-validator";
 
-export const months = Array.from({ length: 12 }, (_, i) => i + 1);
-
-export const years = Array.from({ length: 81 }, (_, i) => 1930 + i).reverse();
+export const inValidEmail = (email: string) => !EmailValidator.validate(email);
+export const inValidPassword = (password: string) =>
+  /[^\x01-\x7E]/g.test(password) ||
+  password?.length < 6 ||
+  /[^a-z0-9@#$%&?!]/gi.test(password);

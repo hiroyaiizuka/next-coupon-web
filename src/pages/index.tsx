@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from "next";
+import useClickLoginEvent from "../hooks/useClickEvent";
 import { ParsedUrlQuery } from "querystring";
-import * as EmailValidator from "email-validator";
+import { inValidEmail, inValidPassword } from "../utils";
 import axios from "axios";
+import Router from "next/router";
 import config from "../config";
 
 interface Props {
@@ -11,17 +13,22 @@ interface Props {
 }
 
 const { baseUrl, coupon } = config.api.appServer;
-const { contact, download, privacyPolicy, termsOfService } = config.url;
+const { contact, privacyPolicy, termsOfService } = config.url;
 
 const Home: NextPage<Props> = ({ query, errors }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const inValidEmail = !EmailValidator.validate(email);
-  const inValidPassword =
-    /[^\x01-\x7E]/g.test(password) ||
-    password?.length < 6 ||
-    /[^a-z0-9@#$%&?!]/gi.test(password);
+  const { clickSubject$, click$ } = useClickLoginEvent(
+    email,
+    password,
+    query.key as string,
+    Router
+  );
+
+  const onClickStartButton = () => {
+    clickSubject$.next(true);
+  };
 
   const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -29,11 +36,6 @@ const Home: NextPage<Props> = ({ query, errors }) => {
 
   const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
-  };
-
-  const onClickStartButton = () => {
-    alert("hey");
-    return;
   };
 
   return (
@@ -56,7 +58,9 @@ const Home: NextPage<Props> = ({ query, errors }) => {
           />
           <div
             className={
-              email && inValidEmail ? styles.warningText : styles.blankText
+              email && inValidEmail(email)
+                ? styles.warningText
+                : styles.blankText
             }
           >
             ※入力が正しくありません
@@ -78,7 +82,7 @@ const Home: NextPage<Props> = ({ query, errors }) => {
           />
           <div
             className={
-              password && inValidPassword
+              password && inValidPassword(password)
                 ? styles.warningText
                 : styles.blankText
             }
@@ -90,11 +94,11 @@ const Home: NextPage<Props> = ({ query, errors }) => {
         <div className={styles.startButtonContainer}>
           <button
             onClick={onClickStartButton}
-            disabled={inValidEmail || inValidPassword}
+            disabled={inValidEmail(email) || inValidPassword(password)}
           >
             <img
               className={
-                inValidEmail || inValidPassword
+                inValidEmail(email) || inValidPassword(password)
                   ? styles.disabledStartButtonImage
                   : styles.startButtonImage
               }
