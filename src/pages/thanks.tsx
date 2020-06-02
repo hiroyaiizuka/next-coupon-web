@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import config from "../config";
+import config from "../configs";
 
 const Thanks: React.FC = () => {
   return (

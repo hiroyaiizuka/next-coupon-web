@@ -3,7 +3,7 @@ import { exhaustMap, throttleTime } from "rxjs/operators";
 import { sendLoginInfo } from "../pages/api/request";
 import { SingletonRouter } from "next/router";
 
-const useClickLoginEvent = (
+const clickLoginEvent = (
   email: string,
   password: string,
   params: string,
@@ -17,7 +17,7 @@ const useClickLoginEvent = (
     )
     .subscribe();
 
-  return { clickSubject$, click$ };
+  return clickSubject$;
 };
 
-export default useClickLoginEvent;
+export default clickLoginEvent;
