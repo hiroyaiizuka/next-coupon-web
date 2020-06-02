@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import config from "../config";
+import config from "../configs";
 
 const Thanks: React.FC = () => {
   return (
@@ -9,7 +9,7 @@ const Thanks: React.FC = () => {
       </div>
       <div className={styles.downloadImage}>
         <a href={config.url.download}>
-          <img src="/images/bt-download.png" alt="thanks" />
+          <img src="/images/bt-download.png" alt="download" />
         </a>
       </div>
       <div className={styles.contactContainer}>

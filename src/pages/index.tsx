@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { NextPage, GetServerSideProps, GetServerSidePropsContext } from "next";
+import clickLoginEvent from "../streams/click";
 import { ParsedUrlQuery } from "querystring";
-import * as EmailValidator from "email-validator";
+import { inValidEmail, inValidPassword } from "../utils";
 import axios from "axios";
-import config from "../config";
+import Router from "next/router";
+import ScaleLoader from "react-spinners/ScaleLoader";
+import config from "../configs";
 
 interface Props {
   query: ParsedUrlQuery;
@@ -11,17 +14,26 @@ interface Props {
 }
 
 const { baseUrl, coupon } = config.api.appServer;
-const { contact, download, privacyPolicy, termsOfService } = config.url;
+const { contact, privacyPolicy, termsOfService } = config.url;
 
 const Home: NextPage<Props> = ({ query, errors }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
-  const inValidEmail = !EmailValidator.validate(email);
-  const inValidPassword =
-    /[^\x01-\x7E]/g.test(password) ||
-    password?.length < 6 ||
-    /[^a-z0-9@#$%&?!]/gi.test(password);
+  const key = query.key as string;
+
+  const clickSubject$ = clickLoginEvent(email, password, key, Router);
+
+  const onClickStartButton = () => {
+    setLoading(true);
+    startClickEvent();
+  };
+
+  const startClickEvent = () => {
+    clickSubject$.next(true);
+    setTimeout(() => setLoading(false), 1000);
+  };
 
   const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -31,13 +43,8 @@ const Home: NextPage<Props> = ({ query, errors }) => {
     setPassword(e.target.value);
   };
 
-  const onClickStartButton = () => {
-    alert("hey");
-    return;
-  };
-
   return (
-    <>
+    <div className={isLoading ? styles.loadingView : ""}>
       <div className={styles.homeImage}>
         <img src="/images/iqos_home.jpg" alt="icos_home" />
       </div>
@@ -53,11 +60,15 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             type="text"
             placeholder="メールアドレスを入力"
             onChange={onChangeEmail}
+            data-cy="email"
           />
           <div
             className={
-              email && inValidEmail ? styles.warningText : styles.blankText
+              email && inValidEmail(email)
+                ? styles.warningText
+                : styles.blankText
             }
+            data-cy="warningEmail"
           >
             ※入力が正しくありません
           </div>
@@ -75,26 +86,40 @@ const Home: NextPage<Props> = ({ query, errors }) => {
             type="text"
             placeholder="6桁以上のパスワードを入力"
             onChange={onChangePassword}
+            data-cy="password"
           />
           <div
             className={
-              password && inValidPassword
+              password && inValidPassword(password)
                 ? styles.warningText
                 : styles.blankText
             }
+            data-cy="warningPassword"
           >
             ※半角6文字以上で入力してください
           </div>
         </div>
 
+        {isLoading && (
+          <div className={styles.loadingContainer}>
+            <ScaleLoader
+              height={50}
+              width={7}
+              color={"#319795"}
+              loading={isLoading}
+            />
+          </div>
+        )}
+
         <div className={styles.startButtonContainer}>
           <button
             onClick={onClickStartButton}
-            disabled={inValidEmail || inValidPassword}
+            disabled={inValidEmail(email) || inValidPassword(password)}
+            data-cy="startButton"
           >
             <img
               className={
-                inValidEmail || inValidPassword
+                inValidEmail(email) || inValidPassword(password)
                   ? styles.disabledStartButtonImage
                   : styles.startButtonImage
               }
@@ -141,7 +166,7 @@ const Home: NextPage<Props> = ({ query, errors }) => {
           <div className={styles.smallText}>ご連絡ください。</div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -153,8 +178,7 @@ export const getServerSideProps: GetServerSideProps = async (
     const response = context.res;
     const params = query?.key ? `?key=${query.key}` : "";
     const url = `${baseUrl}${coupon}${params}`;
-
-    // const result = await axios.get(url);
+    const result = await axios.get(url);
 
     if (!Object.keys(query).length) {
       response.writeHead(302, { Location: "/error" });
@@ -179,6 +203,9 @@ export const getServerSideProps: GetServerSideProps = async (
 
 const styles = {
   container: "flex flex-col m-auto max-w-screen-sm px-6 md:px-12",
+  loadingView: "opacity-25 flex-1 h-full w-full",
+  loadingContainer: "self-center absolute top-23",
+  loading: "self-center",
   flexRowContainer: "flex flex-row",
   homeImage: "mb-5 m-auto max-w-screen-sm ",
   label: "font-bold text-lg block mb-2 mr-4",

@@ -1,5 +1,5 @@
 import React from "react";
-import config from "../config";
+import config from "../configs";
 
 const Error: React.FC = () => {
   return (
