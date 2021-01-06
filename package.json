@@ -14,7 +14,7 @@
   "dependencies": {
     "@testing-library/react-hooks": "^3.2.1",
     "@types/jest": "^25.2.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "email-validator": "^2.0.4",
     "next": "9.4.1",
     "querystring": "^0.2.0",
